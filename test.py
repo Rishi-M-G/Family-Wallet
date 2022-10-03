@@ -1,6 +1,6 @@
 class Bank:
     def __init__(self):
-        self.numberOfAcc = 0
+        self.numberOfAcc = 4
         self.balance = None
         self.name = None
         self.accNo = None
@@ -17,6 +17,7 @@ class Bank:
         return BankAccount(self.accNo, self.name, self.balance)
 
     # def showAccount(self):
+
 
 
 class BankAccount(Bank):
