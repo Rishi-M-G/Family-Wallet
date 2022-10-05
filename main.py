@@ -49,6 +49,7 @@ class Bank:
             return list_arg
 
 # ************* MAIN WINDOW *************
+
 # Creating Bank Accounts List
 list1 = []
 

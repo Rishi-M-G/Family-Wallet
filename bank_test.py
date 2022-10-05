@@ -1,3 +1,4 @@
+# *********** BANK CLASS ********
 class Bank:
     accNo = None
     balance = None
@@ -47,6 +48,7 @@ class Bank:
             list_arg[self.accNo_List.index(self.temp1)][1] = input("Enter Account Holder's Name")
             return list_arg
 
+# ************* MAIN WINDOW *************
 
 # Creating Bank Accounts List
 list1 = []

@@ -1,28 +1,21 @@
-# class dad
-class Dad:
-    def __init__(self):
-        print("This is Dad Class")
+"""Simple Hello, World Example with PyQt6"""
+# Step 1
+import sys
+from PyQt6.QtWidgets import QApplication,QLabel,QWidget
 
+# Step 2
+app = QApplication([])
 
-class Bank:
-    def __init__(self):
-        self.accNo = None
-        self.name = None
-        self.balance = None
-        print("Welcome to the Bank")
+# Step 3
+window = QWidget()
+window.setWindowTitle("PyQt App")
+window.setGeometry(100,100,280,80)
+helloMsg = QLabel("<h1>Hello, World!</h1>",parent=window)
+helloMsg.move(60,15)
 
-    # ****************CREATE BANK ACCOUNT******************
-    def createAccount(self):
-        self.accNo = int(input("Enter Account Number"))
-        self.name = input("Enter Account Holder Name")
-        self.balance = int(input("Enter the amount for initial deposit in your account"))
+# Step 4
+window.show()
 
-        print("***ACCOUNT CREATED***")
+# Step 5
+sys.exit(app.exec())
 
-
-class Wallet:
-    def __init__(self):
-        print("Welcome to the Family Wallet")
-
-
-Bank().createAccount()
