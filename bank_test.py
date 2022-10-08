@@ -64,14 +64,32 @@ class Wallet(Bank):
                 [self.acc_List[self.accNo_List.index(accno)][0], self.acc_List[self.accNo_List.index(accno)][1],
                  self.acc_List[self.accNo_List.index(accno)][2]])
 
+    def removeAccount(self, accno):
+        if accno in self.accNo_List:
+            self.wallet_acc_list.remove(
+                [self.acc_List[self.accNo_List.index(accno)][0], self.acc_List[self.accNo_List.index(accno)][1],
+                 self.acc_List[self.accNo_List.index(accno)][2]])
+            print("BANK ACCOUNT {0} HAS BEEN REMOVED FROM THE WALLET ".format(accno))
+
+
     def addMoneyToWallet(self, accno, amount):
         if accno in self.accNo_List:
             print(self.accNo_List.index(accno))
         if self.acc_List[self.accNo_List.index(accno)][2] < amount:
             print("There is not enough balance in this account")
         else:
-            self.wallet_balance = self.acc_List[self.accNo_List.index(accno)][2] - amount
+            self.wallet_balance = amount
             self.acc_List[self.accNo_List.index(accno)][2] = self.acc_List[self.accNo_List.index(accno)][2] - amount
+            print("CURRENT WALLET BALANCE: ", self.wallet_balance)
+
+    def withdrawMoneyFromWallet(self, accno, amount):
+        if accno in self.accNo_List:
+            print(self.accNo_List.index(accno))
+        if self.wallet_balance < amount:
+            print("There is not enough balance in wallet")
+        else:
+            self.acc_List[self.accNo_List.index(accno)][2] = self.acc_List[self.accNo_List.index(accno)][2] + amount
+            self.wallet_balance = self.wallet_balance - amount
             print("CURRENT WALLET BALANCE: ", self.wallet_balance)
 
 
@@ -114,9 +132,19 @@ w = Wallet()
 
 temp1 = int(input("Enter Account Number"))
 w.addAccount(temp1)
-print(Wallet.wallet_acc_list)
+print(w.wallet_acc_list)
 
 temp2 = int(input("Enter Account Number"))
-amt = int(input("Enter Amount"))
-w.addMoneyToWallet(temp2,amt)
-print(w.wallet_balance)
+w.removeAccount(temp2)
+print(w.wallet_acc_list)
+# temp2 = int(input("Enter Account Number"))
+# amt = int(input("Enter Amount"))
+# w.addMoneyToWallet(temp2, amt)
+# print(w.wallet_balance)
+
+# temp3 = int(input("Enter Account Number"))
+# amtt = int(input("Enter Amount"))
+# w.withdrawMoneyFromWallet(temp3,amtt)
+# print(w.wallet_balance)
+# print(b.acc_List)
+
