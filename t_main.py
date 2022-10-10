@@ -1,21 +1,37 @@
-"""Simple Hello, World Example with PyQt6"""
-# Step 1
+# main_window.py
+
+"""Main window-style application."""
+
 import sys
-from PyQt6.QtWidgets import QApplication,QLabel,QWidget
 
-# Step 2
+from PyQt6.QtWidgets import (
+    QApplication,
+    QLabel,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
+    QMainWindow,
+    QStatusBar,
+    QToolBar,
+)
+
+def greet():
+    if msgLabel.text():
+        msgLabel.setText("")
+    else:
+        msgLabel.setText("Hello World")
+
 app = QApplication([])
-
-# Step 3
 window = QWidget()
-window.setWindowTitle("PyQt App")
-window.setGeometry(100,100,280,80)
-helloMsg = QLabel("<h1>Hello, World!</h1>",parent=window)
-helloMsg.move(60,15)
+window.setWindowTitle("Signals and Slots")
+layout = QVBoxLayout()
 
-# Step 4
+button = QPushButton("Press Me")
+button.clicked.connect(greet)
+
+layout.addWidget(button)
+msgLabel = QLabel("")
+layout.addWidget(msgLabel)
+window.setLayout(layout)
 window.show()
-
-# Step 5
 sys.exit(app.exec())
-
