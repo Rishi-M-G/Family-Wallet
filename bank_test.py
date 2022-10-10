@@ -1,3 +1,5 @@
+from datetime import datetime
+
 # *********** BANK CLASS ********
 class Bank:
     accNo = None
@@ -5,6 +7,7 @@ class Bank:
     name = None
     acc_List = [[1001, 'Rishi', 5000], [1002, 'Mehana', 10000]]
     accNo_List = [1001, 1002]
+    transaction_list=[]
     temp = None
     temp1 = None
 
@@ -92,6 +95,30 @@ class Wallet(Bank):
             self.wallet_balance = self.wallet_balance - amount
             print("CURRENT WALLET BALANCE: ", self.wallet_balance)
 
+# ******** DAD CLASS ************
+class Dad(Wallet):
+
+    total_amount = 0
+
+    def __init__(self):
+        super().__init__()
+        pass
+
+    def Dad_Pay(self,shop_name,item_list):
+        print("Please Verify the details below and confirm the transaction")
+        print("Shop Name: ",shop_name)
+        for i in item_list:
+            print("Item Name: ",i[0])
+            print("Item Price: $ ",i[1])
+            self.total_amount = self.total_amount + i[1]
+        print("Total Amount in {0} is {1}".format(shop_name,self.total_amount))
+        # Please Enter the PIN NUMBER to Proceed
+        print("TRANSACTION COMPLETE")
+        self.transaction_list.append([shop_name,self.total_amount,datetime.now().strftime("%d-%b-%Y (%H:%M:%S.%f)")])
+
+    def viewTranscations(self):
+        return self.transaction_list
+
 
 # ************* MAIN WINDOW *************
 
@@ -129,19 +156,29 @@ class Wallet(Bank):
 # print(list1)
 b = Bank()
 w = Wallet()
-
+d = Dad()
+#
 temp1 = int(input("Enter Account Number"))
 w.addAccount(temp1)
 print(w.wallet_acc_list)
-
-temp2 = int(input("Enter Account Number"))
-w.removeAccount(temp2)
-print(w.wallet_acc_list)
+#
 # temp2 = int(input("Enter Account Number"))
-# amt = int(input("Enter Amount"))
-# w.addMoneyToWallet(temp2, amt)
-# print(w.wallet_balance)
+# w.removeAccount(temp2)
+# print(w.wallet_acc_list)
+temp2 = int(input("Enter Account Number"))
+amt = int(input("Enter Amount"))
+w.addMoneyToWallet(temp2, amt)
+print(w.wallet_balance)
 
+temp_arr=[]
+shop_str = input("Enter Shop Name")
+num = int(input("Enter the Number of items to buy"))
+for i in range(0,num):
+    temp_3 = input("Enter the item name")
+    temp_4 = int(input("Enter the Price of the item"))
+    temp_arr.append([temp_3,temp_4])
+d.Dad_Pay(shop_str,temp_arr)
+print(d.transaction_list)
 # temp3 = int(input("Enter Account Number"))
 # amtt = int(input("Enter Amount"))
 # w.withdrawMoneyFromWallet(temp3,amtt)
