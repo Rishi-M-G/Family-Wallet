@@ -1,11 +1,13 @@
-# ********** IMPORTS **********
+# ********** IMPORTS Starts **********
 from datetime import datetime
 import sys
 import csv
 import pandas as pd
-# ********** IMPORTS **********
 
-# ********** CLASSES **********
+
+# ********** IMPORTS Ends **********
+
+# ********** CLASSES Starts **********
 # ********** BANK CLASS Starts **********
 class Bank:
     accNo = None
@@ -22,15 +24,12 @@ class Bank:
         pass
 
     # Loading Lists from CSV File
-    def loadList(self):
+    def Bank_loadList(self):
         dframe = pd.read_csv("C:\\Users\\Dell\\Desktop\\WalletTest.csv")
         from_df = pd.DataFrame(dframe)
         self.acc_List = from_df['acc_List'].values.tolist()
         self.accNo_List = from_df['accNo_List'].values.tolist()
         self.transaction_list = from_df['transaction_list'].values.tolist()
-        print(self.acc_List)
-        print(self.acc_List[0])
-        print(self.accNo_List)
 
     # Creating a Bank Account
     def createAccount(self):
@@ -67,17 +66,80 @@ class Bank:
             print("ACCOUNT INFO MODIFIED")
 
     # Load Lists back to CSV File
-    def storeList(self):
-        data = {'acc_List':self.acc_List,
-                'accNo_List':self.accNo_List,
-                'transaction_List':self.transaction_list}
-        to_df = pd.DataFrame(data,columns=['acc_List','accNo_List','transaction_list'])
-        to_df.to_csv(r'C:\Users\Dell\Desktop\WalletTest.csv',index=False,header=True)
+    def Bank_storeList(self):
+        data = {'acc_List': self.acc_List,
+                'accNo_List': self.accNo_List,
+                'transaction_List': self.transaction_list}
+        to_df = pd.DataFrame(data, columns=['acc_List', 'accNo_List', 'transaction_list'])
+        to_df.to_csv(r'C:\Users\Dell\Desktop\WalletTest.csv', index=False, header=True)
 
 
 # ********** BANK CLASS Ends **********
-# ********** CLASSES **********
+# ********** WALLET CLASS Starts **********
+class Wallet(Bank):
+    wallet_acc_list = []
+    acc_no_wallet = None
+    wallet_balance = None
+
+    def __init__(self):
+        super().__init__()
+        pass
+
+    def Wallet_LoadList(self):
+        dframe = pd.read_csv("C:\\Users\\Dell\\Desktop\\WalletTest.csv")
+        from_df = pd.DataFrame(dframe)
+        self.wallet_acc_list = from_df['wallet_acc_list'].values.tolist()
+
+    def addAccount(self, accno):
+        if len(self.wallet_acc_list) == 2:
+            print("Cannot add more than two accounts")
+        else:
+            print("Account Number: ", self.acc_List[self.accNo_List.index(accno)][0])
+            print("Account Holder's Name: ", self.acc_List[self.accNo_List.index(accno)][1])
+            print("Account Balance: ", self.acc_List[self.accNo_List.index(accno)][2])
+            print("THIS BANK ACCOUNT HAS BEEN ADDED TO THE WALLET")
+            self.wallet_acc_list.append(
+                [self.acc_List[self.accNo_List.index(accno)][0], self.acc_List[self.accNo_List.index(accno)][1],
+                 self.acc_List[self.accNo_List.index(accno)][2]])
+
+    def removeAccount(self, accno):
+        if accno in self.accNo_List:
+            self.wallet_acc_list.remove(
+                [self.acc_List[self.accNo_List.index(accno)][0], self.acc_List[self.accNo_List.index(accno)][1],
+                 self.acc_List[self.accNo_List.index(accno)][2]])
+            print("BANK ACCOUNT {0} HAS BEEN REMOVED FROM THE WALLET ".format(accno))
+
+    def addMoneyToWallet(self, accno, amount):
+        if accno in self.accNo_List:
+            print(self.accNo_List.index(accno))
+        if self.acc_List[self.accNo_List.index(accno)][2] < amount:
+            print("There is not enough balance in this account")
+        else:
+            self.wallet_balance = amount
+            self.acc_List[self.accNo_List.index(accno)][2] = self.acc_List[self.accNo_List.index(accno)][2] - amount
+            print("CURRENT WALLET BALANCE: ", self.wallet_balance)
+
+    def withdrawMoneyFromWallet(self, accno, amount):
+        if accno in self.accNo_List:
+            print(self.accNo_List.index(accno))
+        if self.wallet_balance < amount:
+            print("There is not enough balance in wallet")
+        else:
+            self.acc_List[self.accNo_List.index(accno)][2] = self.acc_List[self.accNo_List.index(accno)][2] + amount
+            self.wallet_balance = self.wallet_balance - amount
+            print("CURRENT WALLET BALANCE: ", self.wallet_balance)
+
+    def Wallet_storeList(self):
+        data = {'wallet_acc_list': self.wallet_acc_list}
+        to_df = pd.DataFrame(data, columns=['wallet_acc_list'])
+        to_df.to_csv(r'C:\Users\Dell\Desktop\WalletTest.csv', index=False, header=True)
+
+
+
+# ********** WALLET CLASS Ends **********
+# ********** CLASSES Ends **********
+
 
 # ********** MAIN CLASS **********
 b = Bank()
-b.loadList()
+b.Bank_loadList()
