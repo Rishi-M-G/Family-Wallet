@@ -1,33 +1,24 @@
-class Bank:
-    def __init__(self):
-        self.numberOfAcc = 4
-        self.balance = None
-        self.name = None
-        self.accNo = None
-        print("Welcome to the Bank")
+import csv
 
-    # accNo_list = []
+import pandas as pd
 
-    # ****************CREATE BANK ACCOUNT******************
-    def createAccount(self):
-        self.accNo = int(input("Enter the desired bank account number"))
-        self.name = input("Enter the account holder's name")
-        self.balance = int(input("Enter the initial amount to be deposited in the account"))
-        self.numberOfAcc = self.numberOfAcc + 1
-        return BankAccount(self.accNo, self.name, self.balance)
+dframe = pd.read_csv("C:\\Users\\Dell\\Desktop\\TestExcel.csv")
+from_df = pd.DataFrame(dframe)
+Price_list = from_df['Price'].values.tolist()
+Item_List = from_df['ItemName'].values.tolist()
+print(Price_list)
+Price_list[2] = 45
+print(Price_list)
 
-    # def showAccount(self):
+data = {'ItemName': Item_List,
+        'Price':Price_list,
+        'TestList':["Rishi","Mehana",0,0]}
+to_df = pd.DataFrame(data,columns=['ItemName','Price','TestList'])
+to_df.to_csv(r'C:\Users\Dell\Desktop\TestExcel.csv',index=False,header=True)
 
 
-
-class BankAccount(Bank):
-    def __init__(self, accNo, name, balance):
-        super().__init__()
-        self.balance = balance
-        self.name = name
-        self.accNo = accNo
-        print("***ACCOUNT CREATED***")
+dframe = pd.read_csv("C:\\Users\\Dell\\Desktop\\TestExcel.csv")
+from_df = pd.DataFrame(dframe)
+print(from_df)
 
 
-bacc1 = Bank()
-bacc1.createAccount()
