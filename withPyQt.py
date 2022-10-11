@@ -6,7 +6,7 @@ import pandas as pd
 # ********** IMPORTS **********
 
 # ********** CLASSES **********
-# ********** BANK CLASS **********
+# ********** BANK CLASS Starts **********
 class Bank:
     accNo = None
     balance = None
@@ -32,6 +32,7 @@ class Bank:
         print(self.acc_List[0])
         print(self.accNo_List)
 
+    # Creating a Bank Account
     def createAccount(self):
         print(self.acc_List)
         self.accNo = int(input("Enter the desired bank account number"))
@@ -41,6 +42,31 @@ class Bank:
         self.acc_List.append([self.accNo, self.name, self.balance])
         self.accNo_List.append(self.accNo)
 
+    # Show Bank Account Details
+    def showAccount(self, accno):
+        if accno in self.accNo_List:
+            print(self.accNo_List.index(accno))
+            print("Account Number: ", self.acc_List[self.accNo_List.index(accno)][0])
+            print("Account Holder Name:", self.acc_List[self.accNo_List.index(accno)][1])
+            print("Account Balance:", self.acc_List[self.accNo_List.index(accno)][2])
+
+    # Delete an Account from the Bank
+    def deleteAccount(self, accno):
+        if accno in self.accNo_List:
+            print(self.accNo_List.index(accno))
+            self.acc_List.remove(self.acc_List[self.accNo_List.index(accno)])
+            print("YOUR ACCOUNT HAS BEEN CLOSED")
+
+    # Modify Account Information (Only Name can be modified)
+    def modifyAccount(self, accno):
+        if accno in self.accNo_List:
+            print(self.accNo_List.index(accno))
+            print("*****MODIFY ACCOUNT DETAILS*****")
+            print("NOTE : YOU CANNOT MODIFY ACCOUNT NUMBER")
+            self.acc_List[self.accNo_List.index(accno)][1] = input("Enter Account Holder's Name")
+            print("ACCOUNT INFO MODIFIED")
+
+    # Load Lists back to CSV File
     def storeList(self):
         data = {'acc_List':self.acc_List,
                 'accNo_List':self.accNo_List,
@@ -49,7 +75,7 @@ class Bank:
         to_df.to_csv(r'C:\Users\Dell\Desktop\WalletTest.csv',index=False,header=True)
 
 
-# ********** BANK CLASS **********
+# ********** BANK CLASS Ends **********
 # ********** CLASSES **********
 
 # ********** MAIN CLASS **********
