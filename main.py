@@ -5,8 +5,6 @@ class Bank:
     name = None
     acc_List = []
     accNo_List = []
-    temp = None
-    temp1 = None
 
     def __init__(self):
         pass
@@ -59,7 +57,6 @@ list1.append(Bank().createAccount())
 
 # Dummy Values for testing
 list1.append([1004, 'Rishi', 1000])
-list1.append([1005, 'Mehana', 10000])
 
 print(list1[0])
 print(list1[1])
