@@ -42,6 +42,8 @@ class Bank:
             print("*****MODIFY ACCOUNT DETAILS*****")
             print("NOTE : YOU CANNOT MODIFY ACCOUNT NUMBER")
             self.acc_List[self.accNo_List.index(accno)][1] = input("Enter Account Holder's Name")
+            print(self.acc_List)
+            print(self.accNo_List)
             print("ACCOUNT INFO MODIFIED")
 
 
@@ -149,39 +151,40 @@ class Dad(Wallet):
 # print(list1)
 
 # modifyAccount() Method Call
-# temp1 = int(input("Enter Account Number"))
-# Bank().modifyAccount(temp1)
+temp1 = int(input("Enter Account Number"))
+Bank().modifyAccount(temp1)
+
 
 # list1 = Bank().modifyAccount(list1)
 # print(list1)
-b = Bank()
-w = Wallet()
-d = Dad()
-#
-temp1 = int(input("Enter Account Number"))
-w.addAccount(temp1)
-print(w.wallet_acc_list)
-#
-# temp2 = int(input("Enter Account Number"))
-# w.removeAccount(temp2)
+# b = Bank()
+# w = Wallet()
+# d = Dad()
+# #
+# temp1 = int(input("Enter Account Number"))
+# w.addAccount(temp1)
 # print(w.wallet_acc_list)
-temp2 = int(input("Enter Account Number"))
-amt = int(input("Enter Amount"))
-w.addMoneyToWallet(temp2, amt)
-print(w.wallet_balance)
-
-temp_arr=[]
-shop_str = input("Enter Shop Name")
-num = int(input("Enter the Number of items to buy"))
-for i in range(0,num):
-    temp_3 = input("Enter the item name")
-    temp_4 = int(input("Enter the Price of the item"))
-    temp_arr.append([temp_3,temp_4])
-d.Dad_Pay(shop_str,temp_arr)
-print(d.transaction_list)
-# temp3 = int(input("Enter Account Number"))
-# amtt = int(input("Enter Amount"))
-# w.withdrawMoneyFromWallet(temp3,amtt)
+# #
+# # temp2 = int(input("Enter Account Number"))
+# # w.removeAccount(temp2)
+# # print(w.wallet_acc_list)
+# temp2 = int(input("Enter Account Number"))
+# amt = int(input("Enter Amount"))
+# w.addMoneyToWallet(temp2, amt)
 # print(w.wallet_balance)
-# print(b.acc_List)
+#
+# temp_arr=[]
+# shop_str = input("Enter Shop Name")
+# num = int(input("Enter the Number of items to buy"))
+# for i in range(0,num):
+#     temp_3 = input("Enter the item name")
+#     temp_4 = int(input("Enter the Price of the item"))
+#     temp_arr.append([temp_3,temp_4])
+# d.Dad_Pay(shop_str,temp_arr)
+# print(d.transaction_list)
+# # temp3 = int(input("Enter Account Number"))
+# # amtt = int(input("Enter Amount"))
+# # w.withdrawMoneyFromWallet(temp3,amtt)
+# # print(w.wallet_balance)
+# # print(b.acc_List)
 
