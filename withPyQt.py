@@ -102,6 +102,9 @@ class Wallet(Bank):
         from_df = pd.DataFrame(balanceframe,columns=['WalletBalance'])
         self.wallet_balance = int(from_df.values)
 
+        for i in self.wallet_acc_list:
+            self.wallet_accNo_list.append(i[0])
+
         print(self.wallet_balance)
         print(type(self.wallet_balance))
 
@@ -119,6 +122,7 @@ class Wallet(Bank):
                 [self.acc_List[self.accNo_List.index(accno)][0], self.acc_List[self.accNo_List.index(accno)][1],
                  self.acc_List[self.accNo_List.index(accno)][2]])
             self.wallet_accNo_list.append(self.acc_List[self.accNo_List.index(accno)][0])
+            print(self.wallet_accNo_list)
 
 
     def removeAccount(self, accno):
@@ -132,25 +136,30 @@ class Wallet(Bank):
             print("INCORRECT ACCOUNT NUMBER")
 
     def addMoneyToWallet(self, accno, amount):
-        if accno in self.wallet_acc_list:
-            print(self.wallet_acc_list.index(accno))
-        if self.acc_List[self.accNo_List.index(accno)][2] < amount:
-            print("There is not enough balance in this account")
+        if accno in self.wallet_accNo_list:
+            print(self.wallet_accNo_list.index(accno))
+            if self.acc_List[self.accNo_List.index(accno)][2] < amount:
+                print("There is not enough balance in this account")
+            else:
+                self.wallet_balance = self.wallet_balance + amount
+                self.acc_List[self.accNo_List.index(accno)][2] = self.acc_List[self.accNo_List.index(accno)][2] - amount
+                self.wallet_acc_list[self.wallet_accNo_list.index(accno)][2] = self.wallet_acc_list[self.wallet_accNo_list.index(accno)][2] - amount
+                print("CURRENT WALLET BALANCE: ", self.wallet_balance)
         else:
-            self.wallet_balance = amount
-            self.acc_List[self.accNo_List.index(accno)][2] = self.acc_List[self.accNo_List.index(accno)][2] - amount
-            self.wallet_acc_list[self.wallet_accNo_list.index(accno)][2] = self.wallet_acc_list[self.wallet_accNo_list.index(accno)][2] - amount
-            print("CURRENT WALLET BALANCE: ", self.wallet_balance)
+            print("ACCOUNT NUMBER NOT FOUND IN WALLET")
 
     def withdrawMoneyFromWallet(self, accno, amount):
-        if accno in self.accNo_List:
-            print(self.accNo_List.index(accno))
-        if self.wallet_balance < amount:
-            print("There is not enough balance in wallet")
+        if accno in self.wallet_accNo_list:
+            print(self.wallet_accNo_list.index(accno))
+            if self.wallet_balance < amount:
+                print("There is not enough balance in wallet")
+            else:
+                self.acc_List[self.accNo_List.index(accno)][2] = self.acc_List[self.accNo_List.index(accno)][2] + amount
+                self.wallet_acc_list[self.wallet_accNo_list.index(accno)][2] = self.wallet_acc_list[self.wallet_accNo_list.index(accno)][2] + amount
+                self.wallet_balance = self.wallet_balance - amount
+                print("CURRENT WALLET BALANCE: ", self.wallet_balance)
         else:
-            self.acc_List[self.accNo_List.index(accno)][2] = self.acc_List[self.accNo_List.index(accno)][2] + amount
-            self.wallet_balance = self.wallet_balance - amount
-            print("CURRENT WALLET BALANCE: ", self.wallet_balance)
+            print("ACCOUNT NUMBER NOT FOUND IN WALLET")
 
     def Wallet_storeList(self):
         temp_accNo = []
@@ -185,6 +194,7 @@ w.Wallet_LoadList()
 print(w.wallet_acc_list)
 print(w.acc_List)
 print(w.wallet_balance)
+print("WALLET ACCOUNT LIST: ",w.wallet_accNo_list)
 # Bank Methods
 # w.createAccount()  # Create a New Account
 temp1 = int(input("Enter Account Number"))
@@ -201,7 +211,11 @@ w.addAccount(temp1)
 temp2 = int(input("Enter Account Number"))
 temp3 = int(input("Enter Amount"))
 w.addMoneyToWallet(temp2,temp3)
-print(w.wallet_balance)
+print("WALLET BALANCE: ",w.wallet_balance)
+temp2 = int(input("Enter Account Number"))
+temp3 = int(input("Enter Amount"))
+w.withdrawMoneyFromWallet(temp2,temp3)
+print("WALLET BALANCE: ",w.wallet_balance)
 
 # temp1 = int(input("Enter Account Number"))
 # b.deleteAccount(temp1)  # delete account from Bank
