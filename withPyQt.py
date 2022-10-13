@@ -33,7 +33,7 @@ class Bank:
             self.accNo_List.append(i[0])
 
     # Creating a Bank Account
-    def createAccount(self,role):
+    def createAccount(self, role):
         if (role == 'Father') or (role == 'Mother'):
             self.accNo = int(input("Enter the desired bank account number"))
             self.name = input("Enter the account holder's name")
@@ -98,6 +98,9 @@ class Bank:
 # ********** WALLET CLASS Starts **********
 class Wallet(Bank):
     userData = {'Gopal': 'Father', 'Prema': 'Mother', 'Rishi': 'Child', 'Srinithi': 'Child'}
+    permissionData = {'Gopal': 'Granted', 'Prema': 'Granted', 'Rishi': 'Granted', 'Srinithi': 'Granted'}
+    blocked_list = []
+    notification_List = []
     wallet_acc_list = []
     wallet_balance = 0
     wallet_accNo_list = []
@@ -108,21 +111,21 @@ class Wallet(Bank):
 
     def Wallet_LoadList(self):
         dframe = pd.read_excel(r'C:\Users\Dell\Desktop\WalletTest.xlsx', sheet_name='WalletClass')
-        from_df = pd.DataFrame(dframe,columns=['AccNo','AccName','AccBalance'])
+        from_df = pd.DataFrame(dframe, columns=['AccNo', 'AccName', 'AccBalance'])
         self.wallet_acc_list = from_df.values.tolist()
 
         balanceframe = pd.read_excel(r'C:\Users\Dell\Desktop\WalletBalance.xlsx')
-        from_df = pd.DataFrame(balanceframe,columns=['WalletBalance'])
+        from_df = pd.DataFrame(balanceframe, columns=['WalletBalance'])
         self.wallet_balance = int(from_df.values)
 
         for i in self.wallet_acc_list:
             self.wallet_accNo_list.append(i[0])
 
         transactionframe = pd.read_excel(r'C:\Users\Dell\Desktop\WalletBalance.xlsx')
-        from_df = pd.DataFrame(transactionframe,columns=['Transaction'])
+        from_df = pd.DataFrame(transactionframe, columns=['Transaction'])
         self.transaction_list = from_df.values.tolist()
 
-    def addAccount(self, accno):
+    def addAccount(self, accno, role):
         if (role == 'Father') or (role == 'Mother'):
             if len(self.wallet_acc_list) == 2:
                 print("Cannot add more than two accounts")
@@ -141,11 +144,12 @@ class Wallet(Bank):
         else:
             print("NOT AUTHORIZED")
 
-    def removeAccount(self, accno):
+    def removeAccount(self, accno,role):
         if (role == 'Father') or (role == 'Mother'):
             if accno in self.wallet_acc_list:
                 self.wallet_acc_list.remove(
-                    [self.acc_List[self.wallet_accNo_list.index(accno)][0], self.acc_List[self.wallet_accNo_list.index(accno)][1],
+                    [self.acc_List[self.wallet_accNo_list.index(accno)][0],
+                     self.acc_List[self.wallet_accNo_list.index(accno)][1],
                      self.acc_List[self.wallet_accNo_list.index(accno)][2]])
                 self.wallet_accNo_list.remove(self.wallet_accNo_list[self.wallet_accNo_list.index(accno)])
                 print("BANK ACCOUNT {0} HAS BEEN REMOVED FROM THE WALLET ".format(accno))
@@ -154,7 +158,7 @@ class Wallet(Bank):
         else:
             print("NOT AUTHORIZED")
 
-    def addMoneyToWallet(self, accno, amount):
+    def addMoneyToWallet(self, accno, amount,role):
         if (role == 'Father') or (role == 'Mother'):
             if accno in self.wallet_accNo_list:
                 print(self.wallet_accNo_list.index(accno))
@@ -162,25 +166,31 @@ class Wallet(Bank):
                     print("There is not enough balance in this account")
                 else:
                     self.wallet_balance = self.wallet_balance + amount
-                    self.acc_List[self.accNo_List.index(accno)][2] = self.acc_List[self.accNo_List.index(accno)][2] - amount
-                    self.wallet_acc_list[self.wallet_accNo_list.index(accno)][2] = self.wallet_acc_list[self.wallet_accNo_list.index(accno)][2] - amount
+                    self.acc_List[self.accNo_List.index(accno)][2] = self.acc_List[self.accNo_List.index(accno)][
+                                                                         2] - amount
+                    self.wallet_acc_list[self.wallet_accNo_list.index(accno)][2] = \
+                        self.wallet_acc_list[self.wallet_accNo_list.index(accno)][2] - amount
                     print("CURRENT WALLET BALANCE: ", self.wallet_balance)
             else:
                 print("ACCOUNT NUMBER NOT FOUND IN WALLET")
         else:
             print("NOT AUTHORIZED")
 
-    def withdrawMoneyFromWallet(self, accno, amount):
+    def withdrawMoneyFromWallet(self, accno, amount, role):
         if (role == 'Father') or (role == 'Mother'):
             if accno in self.wallet_accNo_list:
                 print(self.wallet_accNo_list.index(accno))
                 if self.wallet_balance < amount:
                     print("There is not enough balance in wallet")
                 else:
-                    self.acc_List[self.accNo_List.index(accno)][2] = self.acc_List[self.accNo_List.index(accno)][2] + amount
-                    self.wallet_acc_list[self.wallet_accNo_list.index(accno)][2] = self.wallet_acc_list[self.wallet_accNo_list.index(accno)][2] + amount
+                    self.acc_List[self.accNo_List.index(accno)][2] = self.acc_List[self.accNo_List.index(accno)][
+                                                                         2] + amount
+                    self.wallet_acc_list[self.wallet_accNo_list.index(accno)][2] = \
+                        self.wallet_acc_list[self.wallet_accNo_list.index(accno)][2] + amount
                     self.wallet_balance = self.wallet_balance - amount
                     print("CURRENT WALLET BALANCE: ", self.wallet_balance)
+                    if self.wallet_balance < 100:
+                        self.notification_List.append("Wallet Balance is less than $ 100")
             else:
                 print("ACCOUNT NUMBER NOT FOUND IN WALLET")
         else:
@@ -200,14 +210,13 @@ class Wallet(Bank):
         to_df = pd.DataFrame(data, columns=['AccNo', 'AccName', 'AccBalance'])
         to_df.to_excel(r'C:\Users\Dell\Desktop\WalletTest.xlsx', sheet_name='WalletClass', index=False, header=True)
 
-        balance_data = {'WalletBalance':self.wallet_balance}
-        to_df = pd.DataFrame(balance_data,columns=['WalletBalance'],index=[0])
+        balance_data = {'WalletBalance': self.wallet_balance}
+        to_df = pd.DataFrame(balance_data, columns=['WalletBalance'], index=[0])
         to_df.to_excel(r'C:\Users\Dell\Desktop\WalletBalance.xlsx', index=False, header=True)
 
-        transaction_data = {'Transaction':self.transaction_list}
-        to_df = pd.DataFrame(transaction_data,columns=['Transaction'])
+        transaction_data = {'Transaction': self.transaction_list}
+        to_df = pd.DataFrame(transaction_data, columns=['Transaction'])
         to_df.to_excel(r'C:\Users\Dell\Desktop\WalletBalance.xlsx', index=False, header=True)
-
 
 
 # ********** WALLET CLASS Ends **********
@@ -218,11 +227,11 @@ class User(Wallet):
     temp_itemPrice = []
     total_price = 0
 
-
     def __init__(self):
         super().__init__()
         pass
-    def pay(self,shopName,amount,role,itemList):
+
+    def pay(self, shopName, amount, role, itemList, username):
         if (role == 'Child') and amount > 50:
             print("You cannot pay for transaction more than $ 50")
         else:
@@ -231,7 +240,39 @@ class User(Wallet):
                 self.temp_itemPrice.append(i[1])
             for i in self.temp_itemPrice:
                 self.total_price = self.total_price + i
-        self.transaction_list.append([shopName,self.temp_itemName,self.total_price,datetime.now().strftime('%Y-%m-%d''%H:%M:%S')])
+        self.transaction_list.append(
+            [username, shopName, self.temp_itemName, self.total_price, datetime.now().strftime('%Y-%m-%d''%H:%M:%S')])
+        if self.wallet_balance < 100:
+            self.notification_List.append("Wallet Balance is less than $ 100") # use dict for notification for categorizing it
+            temp_ans = input("Do you want to add balance now..? Yes or No ")
+            if temp_ans == 'Yes':
+                temp = int(input("Enter Account Number"))
+                self.addMoneyToWallet(temp,role)
+            else:
+                pass
+
+    def viewTransaction(self, role):
+        if (role == 'Father') or (role == 'Mother'):
+            print("******************** Transaction List ********************")
+            print(self.transaction_list)
+            print("**********************************************************")
+        else:
+            print("NOT AUTHORIZED")
+
+    def blockUser(self, role):
+        if role == 'Father':
+            self.blocked_list.append(input("Enter username to be blocked"))
+            print("User has been blocked")
+        else:
+            print('You are not authorized to block any Users')
+
+    def unblockUser(self, role):
+        if role == 'Father':
+            self.blocked_list.remove(input("Enter username to be unblocked"))
+            print("User has been unblocked")
+        else:
+            print('You are not authorized to block any Users')
+
 
 # ********** DAD CLASS Ends **********
 
@@ -288,22 +329,17 @@ while True:
     print("WELCOME TO FAMILY WALLET")
     username = input("Please Enter your user name")
     if username in w.userData.keys():
-        print("VALID USER")
+        if username in w.blocked_list:
+            print("You have been blocked")
+        else:
+            print("Valid User")
         break
     else:
         print("INVALID USER, TRY AGAIN")
 role = w.userData.get(username)
 print(role)
 temp1 = int(input("Enter Account number"))
-w.showAccount(temp1,role)
+w.showAccount(temp1, role)
 
 w.Bank_storeList()
 w.Wallet_storeList()
-
-
-
-
-
-
-
-
