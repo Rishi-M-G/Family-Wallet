@@ -98,13 +98,15 @@ class Bank:
 # ********** WALLET CLASS Starts **********
 class Wallet(Bank):
     userData = {'Gopal': 'Father', 'Prema': 'Mother', 'Rishi': 'Child', 'Srinithi': 'Child'}
-    permissionData = {'Gopal': 'Granted', 'Prema': 'Granted', 'Rishi': 'Granted', 'Srinithi': 'Granted'}
+    countData = {'Gopal':0,'Prema':0,'Rishi':0,'Srinithi':0}
     blocked_list = []
     dad_notification_List = []
     mom_notification_List = []
     wallet_acc_list = []
     wallet_balance = 0
     wallet_accNo_list = []
+    permission_list=[]
+    overspend_list=[]
 
     def __init__(self):
         super().__init__()
@@ -130,9 +132,21 @@ class Wallet(Bank):
         from_df = pd.DataFrame(dadnotificationframe,columns=['Message','Role'])
         self.dad_notification_List = from_df.values.tolist()
 
-        momnotificationframe = pd.read_csv(r'C:\Users\Dell\Desktop\MomNotificationList.xlsx')
+        momnotificationframe = pd.read_excel(r'C:\Users\Dell\Desktop\MomNotificationList.xlsx')
         from_df = pd.DataFrame(momnotificationframe,columns=['Message','Role'])
         self.mom_notification_List = from_df.values.tolist()
+
+        permissiondataframe = pd.read_excel(r'C:\Users\Dell\Desktop\Permission.xlsx')
+        from_df = pd.DataFrame(permissiondataframe,columns=['Rishi','Srinithi'])
+        self.permission_list = from_df.values.tolist()
+
+        blockeddataframe = pd.read_excel(r'C:\Users\Dell\Desktop\BlockedList.xlsx')
+        from_df = pd.DataFrame(blockeddataframe,columns=['BlockedList'])
+        self.blocked_list = from_df.values.tolist()
+
+        overspenddataframe = pd.read_excel(r'C:\Users\Dell\Desktop\OverSpend.xlsx')
+        from_df = pd.DataFrame(overspenddataframe, columns=['Rishi','Srinithi'])
+        self.overspend_list = from_df.values.tolist()
 
     def addAccount(self, accno, role):
         if (role == 'Father') or (role == 'Mother'):
@@ -214,6 +228,7 @@ class Wallet(Bank):
         temp_mom_role =[]
         temp_dad_message = []
         temp_dad_role = []
+
         for i in self.wallet_acc_list:
             temp_accNo.append(i[0])
             temp_accName.append(i[1])
@@ -246,6 +261,19 @@ class Wallet(Bank):
         to_df =pd.DataFrame(dadnotification_data,columns=['Message','Role'])
         to_df.to_excel(r'C:\Users\Dell\Desktop\DadNotificationList.xlsx',index=False,header=True)
 
+        permission_data = {'Rishi':self.permission_list[0],'Srinithi':self.permission_list[1]}
+        to_df = pd.DataFrame(permission_data,columns=['Rishi','Srinithi'])
+        to_df.to_excel(r'C:\Users\Dell\Desktop\Permission.xlsx',index=False,header=True)
+
+        blocked_data = {'BlockedList':self.blocked_list}
+        to_df = pd.DataFrame(blocked_data,columns=['BlockedList'])
+        to_df.to_excel(r'C:\Users\Dell\Desktop\Permission.xlsx',index=False,header=True)
+
+        overspend_data = {'OverSpend': self.overspend_list}
+        to_df = pd.DataFrame(overspend_data, columns=['Rishi','Srinithi'])
+        to_df.to_excel(r'C:\Users\Dell\Desktop\OverSpend.xlsx', index=False, header=True)
+
+
 # ********** WALLET CLASS Ends **********
 
 # ********** DAD CLASS Starts **********
@@ -258,20 +286,53 @@ class User(Wallet):
         super().__init__()
         pass
 
-    def pay(self, shopName, amount, role, itemList, username):
-        if (role == 'Child') and amount > 50:
-            print("You cannot pay for transaction more than $ 50")
-        else:
+    def pay(self, shopName, amount, role, itemList, username,permission,overspend):
+        count = self.countData.get(username)
+        if(role == 'Child') and (permission == 'Granted'):
             for i in itemList:
                 self.temp_itemName.append(i[0])
                 self.temp_itemPrice.append(i[1])
             for i in self.temp_itemPrice:
                 self.total_price = self.total_price + i
-        self.transaction_list.append(
-            [username, shopName, self.temp_itemName, self.total_price, datetime.now().strftime('%Y-%m-%d''%H:%M:%S')])
-        if self.wallet_balance < 100:
-            self.dad_notification_List.append(["Wallet Balance is less than $ 100",username])
-            self.mom_notification_List.append(["Wallet Balance is less than $ 100",username])
+            self.transaction_list.append(
+                [username, shopName, self.temp_itemName, self.total_price,
+                 datetime.now().strftime('%Y-%m-%d''%H:%M:%S')])
+            count = count + 1
+            countData = {username: count}
+            self.countData.update(countData)
+            if self.wallet_balance < 100:
+                self.dad_notification_List.append(["Wallet Balance is less than $ 100", username])
+                self.mom_notification_List.append(["Wallet Balance is less than $ 100", username])
+        else:
+            if (role == 'Child') and count > 1:
+                print("You cannot make more than 1 transaction per day")
+                temp = input('Do you want to request Dad or Mom for more transactions? Yes / No')
+                if temp == 'Yes':
+                    self.requestTransactions(role, username)
+                    print("Request Sent")
+                else:
+                    pass
+            else:
+                if (role == 'Child') and amount > 50 and overspend == 'Not Allowed':
+                    print("You cannot pay for transaction more than $ 50")
+                    temp = input("Do you want to request Mom to allow transaction more than $50? Yes / No")
+                    if temp == 'Yes':
+                        self.mom_notification_List.append(["I want to spend more than 50 dollars",username])
+                        print("Request Sent")
+                else:
+                    for i in itemList:
+                        self.temp_itemName.append(i[0])
+                        self.temp_itemPrice.append(i[1])
+                    for i in self.temp_itemPrice:
+                        self.total_price = self.total_price + i
+                    self.transaction_list.append(
+                        [username, shopName, self.temp_itemName, self.total_price, datetime.now().strftime('%Y-%m-%d''%H:%M:%S')])
+                    count = count + 1
+                    countData = {username:count}
+                    self.countData.update(countData)
+                    if self.wallet_balance < 100:
+                        self.dad_notification_List.append(["Wallet Balance is less than $ 100",username])
+                        self.mom_notification_List.append(["Wallet Balance is less than $ 100",username])
 
     def viewTransaction(self, role):
         if (role == 'Father') or (role == 'Mother'):
@@ -298,10 +359,67 @@ class User(Wallet):
     def viewNotifications(self,role):
         if role == 'Father':
             for i in self.dad_notification_List:
+                temp_list = []
+                temp_list.append(i)
+            for i in temp_list:
                 print("""Message: {0}   By:{1}""".format(i[0],i[1]))
+                temp = input("Do you want to respond to the notification? Yes / No")
+                if(temp == 'Yes') and (i[0] == "I want to make more transactions"):
+                    userIndex = list(self.userData.keys()).index(i[1])
+                    self.permission_list[userIndex] = "Granted"
+                    self.dad_notification_List.remove(i)
+                elif(temp == 'Yes') and (i[0] == "Wallet Balance is 0"):
+                    accno = int(input("Enter Account Number"))
+                    amount = int(input("Enter Amount"))
+                    self.addMoneyToWallet(accno,amount,role)
+                    self.dad_notification_List.remove(i)
+                elif(temp == 'Yes') and (i[0] == "Wallet Balance is less than $ 100"):
+                    accno = int(input("Enter Account Number"))
+                    amount = int(input("Enter Amount"))
+                    self.addMoneyToWallet(accno, amount, role)
+                    self.dad_notification_List.remove(i)
+                elif(temp == 'Yes') and (i[0] == "I want to spend more than 50 dollars"):
+                    decision = input("Do you want to take this request or transfer it ? Take / Leave")
+                    if decision == 'Take':
+                        userIndex = list(self.userData.keys()).index(i[1])
+                        self.overspend_list[userIndex] = "Allow"
+                        self.dad_notification_List.remove(i)
+                    if decision == 'Leave':
+                        pass
+                else:
+                    continue
         if role == 'Mother':
             for i in self.mom_notification_List:
-                print("""Message: {0}   By:{1}""".format(i[0],i[1]))
+                temp_list = []
+                temp_list.append(i)
+            for i in temp_list:
+                print("""Message: {0}   By:{1}""".format(i[0], i[1]))
+                temp = input("Do you want to respond to the notification? Yes / No")
+                if (temp == 'Yes') and (i[0] == "I want to make more transactions"):
+                    userIndex = list(self.userData.keys()).index(i[1])
+                    self.permission_list[userIndex] = "Granted"
+                    self.mom_notification_List.remove(i)
+                elif (temp == 'Yes') and (i[0] == "Wallet Balance is 0"):
+                    accno = int(input("Enter Account Number"))
+                    amount = int(input("Enter Amount"))
+                    self.addMoneyToWallet(accno, amount, role)
+                    self.mom_notification_List.remove(i)
+                elif (temp == 'Yes') and (i[0] == "Wallet Balance is less than $ 100"):
+                    accno = int(input("Enter Account Number"))
+                    amount = int(input("Enter Amount"))
+                    self.addMoneyToWallet(accno, amount, role)
+                    self.mom_notification_List.remove(i)
+                elif (temp == 'Yes') and (i[0] == "I want to spend more than 50 dollars"):
+                    decision = input("Do you want to take this request or transfer it ? Take / Transfer" )
+                    if decision == 'Take':
+                        userIndex = list(self.userData.keys()).index(i[1])
+                        self.overspend_list[userIndex] = "Allow"
+                        self.mom_notification_List.remove(i)
+                    if decision == 'Transfer':
+                        userIndex = list(self.userData.keys()).index(i[1])
+                        self.dad_notification_List.append(["I want to spend more than 50 dollars",i[1]])
+                else:
+                    continue
 
     def balanceIsZero(self,role,username):
         if role == 'Child':
@@ -309,7 +427,10 @@ class User(Wallet):
                 self.dad_notification_List.append(["Wallet Balance is 0",username])
                 self.mom_notification_List.append(["Wallet Balance is 0",username])
 
-
+    def requestTransactions(self,role,username):
+        if role == 'Child':
+            self.dad_notification_List.append(["I want to make more transactions",username])
+            self.mom_notification_List.append(["I want to make more transactions",username])
 
 # ********** DAD CLASS Ends **********
 
