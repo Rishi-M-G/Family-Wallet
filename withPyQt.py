@@ -100,7 +100,8 @@ class Wallet(Bank):
     userData = {'Gopal': 'Father', 'Prema': 'Mother', 'Rishi': 'Child', 'Srinithi': 'Child'}
     permissionData = {'Gopal': 'Granted', 'Prema': 'Granted', 'Rishi': 'Granted', 'Srinithi': 'Granted'}
     blocked_list = []
-    notification_List = []
+    dad_notification_List = []
+    mom_notification_List = []
     wallet_acc_list = []
     wallet_balance = 0
     wallet_accNo_list = []
@@ -124,6 +125,14 @@ class Wallet(Bank):
         transactionframe = pd.read_excel(r'C:\Users\Dell\Desktop\WalletBalance.xlsx')
         from_df = pd.DataFrame(transactionframe, columns=['Transaction'])
         self.transaction_list = from_df.values.tolist()
+
+        dadnotificationframe = pd.read_excel(r'C:\Users\Dell\Desktop\DadNotificationList.xlsx')
+        from_df = pd.DataFrame(dadnotificationframe,columns=['Message','Role'])
+        self.dad_notification_List = from_df.values.tolist()
+
+        momnotificationframe = pd.read_csv(r'C:\Users\Dell\Desktop\MomNotificationList.xlsx')
+        from_df = pd.DataFrame(momnotificationframe,columns=['Message','Role'])
+        self.mom_notification_List = from_df.values.tolist()
 
     def addAccount(self, accno, role):
         if (role == 'Father') or (role == 'Mother'):
@@ -176,7 +185,7 @@ class Wallet(Bank):
         else:
             print("NOT AUTHORIZED")
 
-    def withdrawMoneyFromWallet(self, accno, amount, role):
+    def withdrawMoneyFromWallet(self, accno, amount, role,username):
         if (role == 'Father') or (role == 'Mother'):
             if accno in self.wallet_accNo_list:
                 print(self.wallet_accNo_list.index(accno))
@@ -190,7 +199,8 @@ class Wallet(Bank):
                     self.wallet_balance = self.wallet_balance - amount
                     print("CURRENT WALLET BALANCE: ", self.wallet_balance)
                     if self.wallet_balance < 100:
-                        self.notification_List.append("Wallet Balance is less than $ 100")
+                        self.dad_notification_List.append(["Wallet Balance is less than $ 100", username])
+                        self.mom_notification_List.append(["Wallet Balance is less than $ 100", username])
             else:
                 print("ACCOUNT NUMBER NOT FOUND IN WALLET")
         else:
@@ -200,6 +210,10 @@ class Wallet(Bank):
         temp_accNo = []
         temp_accName = []
         temp_balance = []
+        temp_mom_message = []
+        temp_mom_role =[]
+        temp_dad_message = []
+        temp_dad_role = []
         for i in self.wallet_acc_list:
             temp_accNo.append(i[0])
             temp_accName.append(i[1])
@@ -218,6 +232,19 @@ class Wallet(Bank):
         to_df = pd.DataFrame(transaction_data, columns=['Transaction'])
         to_df.to_excel(r'C:\Users\Dell\Desktop\WalletBalance.xlsx', index=False, header=True)
 
+        for i in self.mom_notification_List:
+            temp_mom_message.append(i[0])
+            temp_mom_role.append(i[1])
+        momnotification_data = {'Message':temp_mom_message,'Role':temp_mom_role}
+        to_df =pd.DataFrame(momnotification_data,columns=['Message','Role'])
+        to_df.to_excel(r'C:\Users\Dell\Desktop\MomNotificationList.xlsx',index=False,header=True)
+
+        for i in self.dad_notification_List:
+            temp_dad_message.append(i[0])
+            temp_dad_role.append(i[1])
+        dadnotification_data = {'Message':temp_dad_message,'Role':temp_dad_role}
+        to_df =pd.DataFrame(dadnotification_data,columns=['Message','Role'])
+        to_df.to_excel(r'C:\Users\Dell\Desktop\DadNotificationList.xlsx',index=False,header=True)
 
 # ********** WALLET CLASS Ends **********
 
@@ -243,13 +270,8 @@ class User(Wallet):
         self.transaction_list.append(
             [username, shopName, self.temp_itemName, self.total_price, datetime.now().strftime('%Y-%m-%d''%H:%M:%S')])
         if self.wallet_balance < 100:
-            self.notification_List.append("Wallet Balance is less than $ 100") # use dict for notification for categorizing it
-            temp_ans = input("Do you want to add balance now..? Yes or No ")
-            if temp_ans == 'Yes':
-                temp = int(input("Enter Account Number"))
-                self.addMoneyToWallet(temp,role)
-            else:
-                pass
+            self.dad_notification_List.append(["Wallet Balance is less than $ 100",username])
+            self.mom_notification_List.append(["Wallet Balance is less than $ 100",username])
 
     def viewTransaction(self, role):
         if (role == 'Father') or (role == 'Mother'):
@@ -272,6 +294,21 @@ class User(Wallet):
             print("User has been unblocked")
         else:
             print('You are not authorized to block any Users')
+
+    def viewNotifications(self,role):
+        if role == 'Father':
+            for i in self.dad_notification_List:
+                print("""Message: {0}   By:{1}""".format(i[0],i[1]))
+        if role == 'Mother':
+            for i in self.mom_notification_List:
+                print("""Message: {0}   By:{1}""".format(i[0],i[1]))
+
+    def balanceIsZero(self,role,username):
+        if role == 'Child':
+            if self.wallet_balance == 0:
+                self.dad_notification_List.append(["Wallet Balance is 0",username])
+                self.mom_notification_List.append(["Wallet Balance is 0",username])
+
 
 
 # ********** DAD CLASS Ends **********
