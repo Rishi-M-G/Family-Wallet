@@ -220,6 +220,7 @@ class Wallet(Bank):
         else:
             print("NOT AUTHORIZED")
 
+
     def Wallet_storeList(self):
         temp_accNo = []
         temp_accName = []
@@ -272,6 +273,19 @@ class Wallet(Bank):
         overspend_data = {'OverSpend': self.overspend_list}
         to_df = pd.DataFrame(overspend_data, columns=['Rishi','Srinithi'])
         to_df.to_excel(r'C:\Users\Dell\Desktop\OverSpend.xlsx', index=False, header=True)
+
+        def endOfTheDay(self):
+            source_datetime = datetime.datetime.now()
+            eod = datetime.datetime(
+                year=source_datetime.year,
+                month=source_datetime.month,
+                day=source_datetime.day
+            ) + datetime.timedelta(days=1, microseconds=-1)
+            return eod
+
+        def endOfTheDayUpdations(self, eod):
+            if datetime.datetime.now() == eod:
+                self.c
 
 
 # ********** WALLET CLASS Ends **********
@@ -354,8 +368,7 @@ class User(Wallet):
                 print("You cannot spend more than $50")
                 self.spendMoreThan50(role,username)
             else:
-                # self.transaction_list.append(self.transaction_list.append([username, shopName, self.temp_itemName, self.total_price, datetime.now().strftime('%Y-%m-%d''%H:%M:%S')]))
-                self.successfulTransaction(username,shopName,self.temp_itemName,self.total_price,datetime.now().strftime('%Y-%m-%d''%H:%M:%S'))
+                self.successfulTransaction(username, shopName, self.temp_itemName, self.total_price)
                 count = count + 1
                 countData = {username:count}
                 self.countData.update(countData)
@@ -473,6 +486,7 @@ class User(Wallet):
     def successfulTransaction(self,username,shopName,item,totalprice):
         self.transaction_list.append([username, shopName,item,totalprice, datetime.now().strftime('%Y-%m-%d''%H:%M:%S')])
         print("SUCCESSFUL TRANSACTION")
+
 
 
 
