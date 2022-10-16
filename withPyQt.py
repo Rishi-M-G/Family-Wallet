@@ -286,54 +286,81 @@ class User(Wallet):
         super().__init__()
         pass
 
-    def pay(self, shopName, amount, role, itemList, username,permission,overspend):
+    # def pay(self, shopName, amount, role, itemList, username,permission,overspend):
+    #     count = self.countData.get(username)
+    #     if(role == 'Child') and (permission == 'Granted'):
+    #         for i in itemList:
+    #             self.temp_itemName.append(i[0])
+    #             self.temp_itemPrice.append(i[1])
+    #         for i in self.temp_itemPrice:
+    #             self.total_price = self.total_price + i[1]
+    #         self.transaction_list.append(
+    #             [username, shopName, self.temp_itemName, self.total_price,
+    #              datetime.now().strftime('%Y-%m-%d''%H:%M:%S')])
+    #         count = count + 1
+    #         countData = {username: count}
+    #         self.countData.update(countData)
+    #         self.wallet_balance = self.wallet_balance - self.total_price
+    #         if self.wallet_balance < 100:
+    #             self.balanceIsLess(username)
+    #             # self.dad_notification_List.append(["Wallet Balance is less than $ 100", username])
+    #             # self.mom_notification_List.append(["Wallet Balance is less than $ 100", username])
+    #     else:
+    #         if (role == 'Child') and count > 1:
+    #             print("You cannot make more than 1 transaction per day")
+    #             temp = input('Do you want to request Dad or Mom for more transactions? Yes / No')
+    #             if temp == 'Yes':
+    #                 self.requestTransactions(role, username)
+    #                 print("Request Sent")
+    #             else:
+    #                 pass
+    #         else:
+    #             if (role == 'Child') and amount > 50 and overspend == 'Not Allowed':
+    #                 print("You cannot pay for transaction more than $ 50")
+    #                 self.spendMoreThan50(role,username)
+    #             else:
+    #                 for i in itemList:
+    #                     self.temp_itemName.append(i[0])
+    #                     self.temp_itemPrice.append(i[1])
+    #                 for i in self.temp_itemPrice:
+    #                     self.total_price = self.total_price + i
+    #                 self.transaction_list.append(
+    #                     [username, shopName, self.temp_itemName, self.total_price, datetime.now().strftime('%Y-%m-%d''%H:%M:%S')])
+    #                 count = count + 1
+    #                 countData = {username:count}
+    #                 self.countData.update(countData)
+    #                 if self.wallet_balance < 100:
+    #                     self.balanceIsLess(username)
+    #                     # self.dad_notification_List.append(["Wallet Balance is less than $ 100",username])
+    #                     # self.mom_notification_List.append(["Wallet Balance is less than $ 100",username])
+
+    def pay(self,shopName,role,itemList,username,permission,overspend):
         count = self.countData.get(username)
-        if(role == 'Child') and (permission == 'Granted'):
+        if role == 'Child' and count > 0:
+            print("You cannot make more than 1 transaction per day")
+            temp = input('Do you want to request Dad or Mom for more transactions? Yes / No')
+            if temp == 'Yes':
+                self.requestTransactions(role, username)
+                print("Request Sent")
+            else:
+                pass
+        elif (role == 'Child' and count == 0) or (role == 'Father' or role == 'Mother'):
             for i in itemList:
                 self.temp_itemName.append(i[0])
                 self.temp_itemPrice.append(i[1])
             for i in self.temp_itemPrice:
-                self.total_price = self.total_price + i
-            self.transaction_list.append(
-                [username, shopName, self.temp_itemName, self.total_price,
-                 datetime.now().strftime('%Y-%m-%d''%H:%M:%S')])
-            count = count + 1
-            countData = {username: count}
-            self.countData.update(countData)
-            if self.wallet_balance < 100:
-                self.dad_notification_List.append(["Wallet Balance is less than $ 100", username])
-                self.mom_notification_List.append(["Wallet Balance is less than $ 100", username])
-        else:
-            if (role == 'Child') and count > 1:
-                print("You cannot make more than 1 transaction per day")
-                temp = input('Do you want to request Dad or Mom for more transactions? Yes / No')
-                if temp == 'Yes':
-                    self.requestTransactions(role, username)
-                    print("Request Sent")
-                else:
-                    pass
+                self.total_price = self.total_price + i[1]
+            if self.total_price > 50 and overspend == 'Not Allowed' and role == 'Child':
+                print("You cannot spend more than $50")
+                self.spendMoreThan50(role,username)
             else:
-                if (role == 'Child') and amount > 50 and overspend == 'Not Allowed':
-                    print("You cannot pay for transaction more than $ 50")
-                    temp = input("Do you want to request Mom to allow transaction more than $50? Yes / No")
-                    if temp == 'Yes':
-                        self.mom_notification_List.append(["I want to spend more than 50 dollars",username])
-                        print("Request Sent")
-                else:
-                    for i in itemList:
-                        self.temp_itemName.append(i[0])
-                        self.temp_itemPrice.append(i[1])
-                    for i in self.temp_itemPrice:
-                        self.total_price = self.total_price + i
-                    self.transaction_list.append(
-                        [username, shopName, self.temp_itemName, self.total_price, datetime.now().strftime('%Y-%m-%d''%H:%M:%S')])
-                    count = count + 1
-                    countData = {username:count}
-                    self.countData.update(countData)
-                    if self.wallet_balance < 100:
-                        self.dad_notification_List.append(["Wallet Balance is less than $ 100",username])
-                        self.mom_notification_List.append(["Wallet Balance is less than $ 100",username])
-
+                # self.transaction_list.append(self.transaction_list.append([username, shopName, self.temp_itemName, self.total_price, datetime.now().strftime('%Y-%m-%d''%H:%M:%S')]))
+                self.successfulTransaction(username,shopName,self.temp_itemName,self.total_price,datetime.now().strftime('%Y-%m-%d''%H:%M:%S'))
+                count = count + 1
+                countData = {username:count}
+                self.countData.update(countData)
+                if self.wallet_balance < 100:
+                    self.balanceIsLess(username)
     def viewTransaction(self, role):
         if (role == 'Father') or (role == 'Mother'):
             print("******************** Transaction List ********************")
@@ -431,6 +458,24 @@ class User(Wallet):
         if role == 'Child':
             self.dad_notification_List.append(["I want to make more transactions",username])
             self.mom_notification_List.append(["I want to make more transactions",username])
+
+    def balanceIsLess(self,username):
+        self.dad_notification_List.append(["Wallet Balance is less than $ 100", username])
+        self.mom_notification_List.append(["Wallet Balance is less than $ 100", username])
+
+    def spendMoreThan50(self,role,username):
+        if role == 'Child':
+            temp = input("Do you want to request Mom to allow transaction more than $50? Yes / No")
+            if temp == 'Yes':
+                self.mom_notification_List.append(["I want to spend more than 50 dollars", username])
+                print("Request Sent")
+
+    def successfulTransaction(self,username,shopName,item,totalprice):
+        self.transaction_list.append([username, shopName,item,totalprice, datetime.now().strftime('%Y-%m-%d''%H:%M:%S')])
+        print("SUCCESSFUL TRANSACTION")
+
+
+
 
 # ********** DAD CLASS Ends **********
 
