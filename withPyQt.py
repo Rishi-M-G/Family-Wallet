@@ -4,7 +4,9 @@ import sys
 import csv
 import pandas as pd
 import openpyxl
-
+import shutil
+columns = shutil.get_terminal_size().columns
+from termcolor import colored
 
 # ********** IMPORTS Ends **********
 
@@ -26,7 +28,7 @@ class Bank:
 
     # Loading Lists from CSV File
     def Bank_loadList(self):
-        dframe = pd.read_excel(r'C:\Users\Dell\Desktop\BankTest.xlsx', sheet_name='BankClass')
+        dframe = pd.read_excel('BankTest.xlsx', sheet_name='BankClass')
         from_df = pd.DataFrame(dframe)
         self.acc_List = from_df.values.tolist()
         for i in self.acc_List:
@@ -38,25 +40,26 @@ class Bank:
             self.accNo = int(input("Enter the desired bank account number"))
             self.name = input("Enter the account holder's name")
             self.balance = int(input("Enter the initial amount to be deposited in the account"))
-            print("***ACCOUNT CREATED***")
+            print("***ACCOUNT CREATED***".center(columns))
             self.acc_List.append([self.accNo, self.name, self.balance])
             self.accNo_List.append(self.accNo)
         else:
-            print("NOT AUTHORIZED")
+            print(colored("{0} NOT AUTHORIZED".format(role).center(columns),'red'))
 
     # Show Bank Account Details
     def showAccount(self, accno, role):
         if (role == 'Father') or (role == 'Mother'):
             if accno in self.accNo_List:
-                print(self.accNo_List.index(accno))
-                print("Account Number: ", self.acc_List[self.accNo_List.index(accno)][0])
-                print("Account Holder Name:", self.acc_List[self.accNo_List.index(accno)][1])
-                print("Account Balance:", self.acc_List[self.accNo_List.index(accno)][2])
+                print("Account Number: ".center(columns), self.acc_List[self.accNo_List.index(accno)][0])
+                print("Account Holder Name:".center(columns), self.acc_List[self.accNo_List.index(accno)][1])
+                print("Account Balance:".center(columns), self.acc_List[self.accNo_List.index(accno)][2])
+            else:
+                print(colored("ACCOUNT NUMBER : {0} NOT FOUND".format(accno).center(columns), 'red'))
         else:
-            print("NOT AUTHORIZED")
+            print(colored("{0} NOT AUTHORIZED".format(role).center(columns),'red'))
 
     # Delete an Account from the Bank
-    def deleteAccount(self, accno):
+    def deleteAccount(self, accno,role):
         if (role == 'Father') or (role == 'Mother'):
             if accno in self.accNo_List:
                 temp = self.accNo_List.index(accno)
@@ -64,19 +67,19 @@ class Bank:
                 self.accNo_List.remove(self.accNo_List[temp])
                 print("YOUR ACCOUNT HAS BEEN CLOSED")
         else:
-            print("NOT AUTHORIZED")
+            print(colored("{0} NOT AUTHORIZED".format(role).center(columns),'red'))
 
     # Modify Account Information (Only Name can be modified)
-    def modifyAccount(self, accno):
+    def modifyAccount(self, accno,role):
         if (role == 'Father') or (role == 'Mother'):
             if accno in self.accNo_List:
                 print(self.accNo_List.index(accno))
-                print("*****MODIFY ACCOUNT DETAILS*****")
-                print("NOTE : YOU CANNOT MODIFY ACCOUNT NUMBER")
+                print("*****MODIFY ACCOUNT DETAILS*****".center(columns))
+                print("NOTE : YOU CANNOT MODIFY ACCOUNT NUMBER".center(columns))
                 self.acc_List[self.accNo_List.index(accno)][1] = input("Enter Account Holder's Name")
-                print("ACCOUNT INFO MODIFIED")
+                print("ACCOUNT INFO MODIFIED".center(columns))
         else:
-            print("NOT AUTHORIZED")
+            print(colored("{0} NOT AUTHORIZED".format(role).center(columns),'red'))
 
     # Load Lists back to CSV File
     def Bank_storeList(self):
@@ -91,7 +94,7 @@ class Bank:
                 'AccName': temp_accName,
                 'AccBalance': temp_balance}
         to_df = pd.DataFrame(data, columns=['AccNo', 'AccName', 'AccBalance'])
-        to_df.to_excel(r'C:\Users\Dell\Desktop\BankTest.xlsx', sheet_name='BankClass', index=False, header=True)
+        to_df.to_excel('BankTest.xlsx', sheet_name='BankClass', index=False, header=True)
 
 
 # ********** BANK CLASS Ends **********
@@ -113,40 +116,45 @@ class Wallet(Bank):
         pass
 
     def Wallet_LoadList(self):
-        dframe = pd.read_excel(r'C:\Users\Dell\Desktop\WalletTest.xlsx', sheet_name='WalletClass')
+        dframe = pd.read_excel('WalletTest.xlsx', sheet_name='WalletClass')
         from_df = pd.DataFrame(dframe, columns=['AccNo', 'AccName', 'AccBalance'])
         self.wallet_acc_list = from_df.values.tolist()
 
-        balanceframe = pd.read_excel(r'C:\Users\Dell\Desktop\WalletBalance.xlsx')
+
+        balanceframe = pd.read_excel('WalletBalance.xlsx')
         from_df = pd.DataFrame(balanceframe, columns=['WalletBalance'])
         self.wallet_balance = int(from_df.values)
 
         for i in self.wallet_acc_list:
             self.wallet_accNo_list.append(i[0])
 
-        transactionframe = pd.read_excel(r'C:\Users\Dell\Desktop\WalletBalance.xlsx')
+        transactionframe = pd.read_excel('WalletBalance.xlsx')
         from_df = pd.DataFrame(transactionframe, columns=['Transaction'])
         self.transaction_list = from_df.values.tolist()
 
-        dadnotificationframe = pd.read_excel(r'C:\Users\Dell\Desktop\DadNotificationList.xlsx')
+        dadnotificationframe = pd.read_excel('DadNotificationList.xlsx')
         from_df = pd.DataFrame(dadnotificationframe,columns=['Message','Role'])
         self.dad_notification_List = from_df.values.tolist()
 
-        momnotificationframe = pd.read_excel(r'C:\Users\Dell\Desktop\MomNotificationList.xlsx')
+        momnotificationframe = pd.read_excel('MomNotificationList.xlsx')
         from_df = pd.DataFrame(momnotificationframe,columns=['Message','Role'])
         self.mom_notification_List = from_df.values.tolist()
 
-        permissiondataframe = pd.read_excel(r'C:\Users\Dell\Desktop\Permission.xlsx')
+        permissiondataframe = pd.read_excel('Permission.xlsx')
         from_df = pd.DataFrame(permissiondataframe,columns=['Rishi','Srinithi'])
         self.permission_list = from_df.values.tolist()
 
-        blockeddataframe = pd.read_excel(r'C:\Users\Dell\Desktop\BlockedList.xlsx')
+        blockeddataframe = pd.read_excel('BlockedList.xlsx')
         from_df = pd.DataFrame(blockeddataframe,columns=['BlockedList'])
         self.blocked_list = from_df.values.tolist()
 
-        overspenddataframe = pd.read_excel(r'C:\Users\Dell\Desktop\OverSpend.xlsx')
+        overspenddataframe = pd.read_excel('OverSpend.xlsx')
         from_df = pd.DataFrame(overspenddataframe, columns=['Rishi','Srinithi'])
         self.overspend_list = from_df.values.tolist()
+
+        # countdataframe = pd.read_excel(r'C:\Users\Dell\Desktop\Count.xlsx')
+        # from_df = pd.DataFrame(countdataframe,columns=['Rishi','Srinithi'])
+        # self.countData = from_df.values
 
     def addAccount(self, accno, role):
         if (role == 'Father') or (role == 'Mother'):
@@ -165,7 +173,7 @@ class Wallet(Bank):
                 self.wallet_accNo_list.append(self.acc_List[self.accNo_List.index(accno)][0])
                 print(self.wallet_accNo_list)
         else:
-            print("NOT AUTHORIZED")
+            print(colored("{0} NOT AUTHORIZED".format(role).center(columns),'red'))
 
     def removeAccount(self, accno,role):
         if (role == 'Father') or (role == 'Mother'):
@@ -179,7 +187,7 @@ class Wallet(Bank):
             else:
                 print("INCORRECT ACCOUNT NUMBER")
         else:
-            print("NOT AUTHORIZED")
+            print(colored("{0} NOT AUTHORIZED".format(role).center(columns),'red'))
 
     def addMoneyToWallet(self, accno, amount,role):
         if (role == 'Father') or (role == 'Mother'):
@@ -197,7 +205,7 @@ class Wallet(Bank):
             else:
                 print("ACCOUNT NUMBER NOT FOUND IN WALLET")
         else:
-            print("NOT AUTHORIZED")
+            print(colored("{0} NOT AUTHORIZED".format(role).center(columns),'red'))
 
     def withdrawMoneyFromWallet(self, accno, amount, role,username):
         if (role == 'Father') or (role == 'Mother'):
@@ -218,7 +226,7 @@ class Wallet(Bank):
             else:
                 print("ACCOUNT NUMBER NOT FOUND IN WALLET")
         else:
-            print("NOT AUTHORIZED")
+            print(colored("{0} NOT AUTHORIZED".format(role).center(columns)),'red')
 
 
     def Wallet_storeList(self):
@@ -238,54 +246,59 @@ class Wallet(Bank):
                 'AccName': temp_accName,
                 'AccBalance': temp_balance}
         to_df = pd.DataFrame(data, columns=['AccNo', 'AccName', 'AccBalance'])
-        to_df.to_excel(r'C:\Users\Dell\Desktop\WalletTest.xlsx', sheet_name='WalletClass', index=False, header=True)
+        to_df.to_excel('WalletTest.xlsx', sheet_name='WalletClass', index=False, header=True)
 
         balance_data = {'WalletBalance': self.wallet_balance}
         to_df = pd.DataFrame(balance_data, columns=['WalletBalance'], index=[0])
-        to_df.to_excel(r'C:\Users\Dell\Desktop\WalletBalance.xlsx', index=False, header=True)
+        to_df.to_excel('WalletBalance.xlsx', index=False, header=True)
 
         transaction_data = {'Transaction': self.transaction_list}
         to_df = pd.DataFrame(transaction_data, columns=['Transaction'])
-        to_df.to_excel(r'C:\Users\Dell\Desktop\WalletBalance.xlsx', index=False, header=True)
+        to_df.to_excel('Transaction.xlsx', index=False, header=True)
 
         for i in self.mom_notification_List:
             temp_mom_message.append(i[0])
             temp_mom_role.append(i[1])
         momnotification_data = {'Message':temp_mom_message,'Role':temp_mom_role}
         to_df =pd.DataFrame(momnotification_data,columns=['Message','Role'])
-        to_df.to_excel(r'C:\Users\Dell\Desktop\MomNotificationList.xlsx',index=False,header=True)
+        to_df.to_excel('MomNotificationList.xlsx',index=False,header=True)
 
         for i in self.dad_notification_List:
             temp_dad_message.append(i[0])
             temp_dad_role.append(i[1])
         dadnotification_data = {'Message':temp_dad_message,'Role':temp_dad_role}
         to_df =pd.DataFrame(dadnotification_data,columns=['Message','Role'])
-        to_df.to_excel(r'C:\Users\Dell\Desktop\DadNotificationList.xlsx',index=False,header=True)
+        to_df.to_excel('DadNotificationList.xlsx',index=False,header=True)
 
-        permission_data = {'Rishi':self.permission_list[0],'Srinithi':self.permission_list[1]}
+        permission_data = {'Rishi':self.permission_list,'Srinithi':self.permission_list}
         to_df = pd.DataFrame(permission_data,columns=['Rishi','Srinithi'])
-        to_df.to_excel(r'C:\Users\Dell\Desktop\Permission.xlsx',index=False,header=True)
+        to_df.to_excel('Permission.xlsx',index=True,header=True)
 
         blocked_data = {'BlockedList':self.blocked_list}
         to_df = pd.DataFrame(blocked_data,columns=['BlockedList'])
-        to_df.to_excel(r'C:\Users\Dell\Desktop\Permission.xlsx',index=False,header=True)
+        to_df.to_excel('BlockedList.xlsx',index=False,header=True)
 
         overspend_data = {'OverSpend': self.overspend_list}
         to_df = pd.DataFrame(overspend_data, columns=['Rishi','Srinithi'])
-        to_df.to_excel(r'C:\Users\Dell\Desktop\OverSpend.xlsx', index=False, header=True)
+        to_df.to_excel('OverSpend.xlsx', index=False, header=True)
 
-        def endOfTheDay(self):
-            source_datetime = datetime.datetime.now()
-            eod = datetime.datetime(
-                year=source_datetime.year,
-                month=source_datetime.month,
-                day=source_datetime.day
-            ) + datetime.timedelta(days=1, microseconds=-1)
-            return eod
+        # count_data = {'Rishi':self.count_list[0],'Srinithi':self.count_list[1]}
+        # to_df = pd.DataFrame(count_data,columns=['Rishi','Srinithi'])
+        # to_df.to_excel(r'C:\Users\Dell\Desktop\Count.xlsx', index=False, header=True)
 
-        def endOfTheDayUpdations(self, eod):
-            if datetime.datetime.now() == eod:
-                self.c
+
+    def endOfTheDay(self):
+        source_datetime = datetime.datetime.now()
+        eod = datetime.datetime(
+            year=source_datetime.year,
+            month=source_datetime.month,
+            day=source_datetime.day
+        ) + datetime.timedelta(days=1, microseconds=-1)
+        return eod
+
+    def endOfTheDayUpdations(self, eod):
+        if datetime.datetime.now() == eod:
+            self.c
 
 
 # ********** WALLET CLASS Ends **********
@@ -539,24 +552,111 @@ class User(Wallet):
 # MAIN CLASS TEST
 b = Bank()  # Bank Class Object
 w = Wallet()  # Wallet Class Object
-w.Bank_loadList()  # Load values from CSV
-w.Wallet_LoadList()
-
+user = User()
+user.Bank_loadList()  # Load values from CSV
+user.Wallet_LoadList()
+print("WELCOME TO FAMILY WALLET".center(columns))
 while True:
-    print("WELCOME TO FAMILY WALLET")
-    username = input("Please Enter your user name")
-    if username in w.userData.keys():
-        if username in w.blocked_list:
-            print("You have been blocked")
+    username = input("Please Enter your user name".center(columns))
+    passcode = int(input("Enter Passcode".center(columns)))
+    if username in user.userData.keys():
+        if username in user.blocked_list:
+            print("********** YOU HAVE BEEN BLOCKED **********".center(columns))
         else:
-            print("Valid User")
+            print("Welcome..! You are a Valid User".center(columns))
         break
     else:
-        print("INVALID USER, TRY AGAIN")
-role = w.userData.get(username)
-print(role)
-temp1 = int(input("Enter Account number"))
-w.showAccount(temp1, role)
-
-w.Bank_storeList()
-w.Wallet_storeList()
+        print("********** INVALID USER, TRY AGAIN **********".center(columns))
+print("************************************************************".center(columns))
+role = user.userData.get(username)
+userIndex = list(user.userData.keys()).index(username)
+print(userIndex)
+permission = user.permission_list
+print("WHAT DO YOU WANT TO ACCESS?".center(columns))
+print("1.Bank".center(columns))
+print("2.Wallet".center(columns))
+choice = int(input())
+if choice == 1:
+    while True:
+        print("******************** WELCOME TO THE BANK ********************".center(columns))
+        print("Account List:", user.acc_List)
+        print("********** HOW CAN WE HELP YOU ? **********".center(columns))
+        print("1.Create Account".center(columns))
+        print("2.Show Account Details".center(columns))
+        print("3.Delete Account".center(columns))
+        print("4.Modify Account Name".center(columns))
+        print("5.Exit Bank".center(columns))
+        choice = int(input())
+        if choice == 1:
+            print("********** CREATING AN ACCOUNT **********".center(columns))
+            user.createAccount(role)
+        elif choice == 2:
+            print("********** SHOW ACCOUNT DETAILS **********".center(columns))
+            accountNumber = int(input("Enter Account Number".center(columns)))
+            user.showAccount(accountNumber,role)
+        elif choice == 3:
+            print("********** DELETE ACCOUNT **********".center(columns))
+            accountNumber = int(input("Enter Account Number".center(columns)))
+            user.deleteAccount(accountNumber,role)
+        elif choice == 4:
+            print("********** MODIFY ACCOUNT **********".center(columns))
+            accountNumber = int(input("Enter Account Number".center(columns)))
+            user.modifyAccount(accountNumber,role)
+        elif choice == 5:
+            break
+        else:
+            print("********** INVALID CHOICE **********".center(columns))
+elif choice == 2:
+    while True:
+        print("******************** WELCOME TO THE BANK ********************".center(columns))
+        print("Wallet Account List : ", user.wallet_acc_list)
+        print("\n")
+        print("-----------------------------------------------------------------------".center(columns))
+        print("WALLET BALANCE : ".center(columns),user.wallet_balance)
+        print("-----------------------------------------------------------------------".center(columns))
+        print("\n")
+        print("********** HOW CAN WE HELP YOU ? **********".center(columns))
+        print("1.Add Account to Wallet".center(columns))
+        print("2.Remove Account to Wallet".center(columns))
+        print("3.Add Money From Wallet".center(columns))
+        print("4.Send Money From Wallet to Bank".center(columns))
+        print("5.Pay".center(columns))
+        print("6.View Transactions".center(columns))
+        print("7.Block User".center(columns))
+        print("8.Unblock User".center(columns))
+        print("9.View Notifications".center(columns))
+        print("10.Exit".center(columns))
+        choice = int(input())
+        if choice == 1:
+            print("********** ADDING ACCOUNT TO WALLET **********".center(columns))
+            accountNumber = int(input("Enter Account Number".center(columns)))
+            user.addAccount(accountNumber,role)
+        elif choice == 2:
+            print("********** REMOVING ACCOUNT FROM WALLET **********".center(columns))
+            accountNumber = int(input("Enter Account Number".center(columns)))
+            user.removeAccount(accountNumber,role)
+        elif choice == 3:
+            print("********** ADDING MONEY TO WALLET **********".center(columns))
+            accountNumber = int(input("Enter Account Number".center(columns)))
+            amount = int(input("Enter Amount".center(columns)))
+            user.addMoneyToWallet(accountNumber,amount,role)
+        elif choice == 4:
+            print("********** SENDING MONEY FROM WALLET TO BANK **********".center(columns))
+            accountNumber = int(input("Enter Account Number".center(columns)))
+            amount = int(input("Enter Amount".center(columns)))
+            user.withdrawMoneyFromWallet(accountNumber,amount,role,username)
+        elif choice == 5:
+            print("********** PAY TO BUSINESS **********".center(columns))
+            ShopName = input("Enter Shop Name".center(columns))
+            itemCount = int(input("Enter Number of Items".center(columns)))
+            tempItemList = []
+            for i in range(0,itemCount-1):
+                name = input("Enter Item Number".center(columns))
+                price = int(input("Enter Item Price".center(columns)))
+                tempItemList.append([name,price])
+            user.pay(ShopName,role,tempItemList,username,user.permission_list)
+            break
+        else:
+            print("********** INVALID CHOICE **********".center(columns))
+user.Bank_storeList()
+user.Wallet_storeList()
