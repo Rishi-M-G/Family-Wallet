@@ -102,6 +102,7 @@ class Bank:
 class Wallet(Bank):
     userData = {'Gopal': 'Father', 'Prema': 'Mother', 'Rishi': 'Child', 'Srinithi': 'Child','Siva':'Child','Sabareesh':'Child','Yuga':'Child','Gnana':'Child','Prithvi':'Child','Pranav':'Child'}
     countData = {'Gopal':0,'Prema':0,'Rishi':0,'Srinithi':0,'Siva':0,'Sabareesh':0,'Yuga':0,'Gnana':0,'Prithivi':0,'Pranav':0}
+    temp_blocked_list=None
     blocked_list = []
     dad_notification_List = []
     mom_notification_List = []
@@ -146,7 +147,8 @@ class Wallet(Bank):
 
         blockeddataframe = pd.read_excel('BlockedList.xlsx')
         from_df = pd.DataFrame(blockeddataframe,columns=['BlockedList'])
-        self.blocked_list = from_df.values.tolist()
+        self.temp_blocked_list = from_df.values
+        self.blocked_list = list(self.temp_blocked_list)
 
         overspenddataframe = pd.read_excel('OverSpend.xlsx')
         from_df = pd.DataFrame(overspenddataframe, columns=['Gopal','Prema','Rishi','Srinithi','Siva','Sabareesh','Yuga','Gnana','Prithvi','Pranav'])
@@ -288,19 +290,21 @@ class Wallet(Bank):
 
 
     def endOfTheDay(self):
-        source_datetime = datetime.datetime.now()
-        eod = datetime.datetime(
-            year=source_datetime.year,
-            month=source_datetime.month,
-            day=source_datetime.day
-        ) + datetime.timedelta(days=1, microseconds=-1)
-        return eod
+        pass
+        # source_datetime = datetime.now()
+        # eod = datetime(
+        #     year=source_datetime.year,
+        #     month=source_datetime.month,
+        #     day=source_datetime.day
+        # ) + datetime.timedelta(days=1, microseconds=-1)
+        # return eod
 
-    def endOfTheDayUpdations(self, eod,username):
-        if datetime.datetime.now() == eod:
-            count = 0
-            countData = {username: count}
-            self.countData.update(countData)
+    # def endOfTheDayUpdations(self, eod,username):
+    #     pass
+    #     # if datetime.datetime.now() == eod:
+    #     #     count = 0
+    #     #     countData = {username: count}
+    #     #     self.countData.update(countData)
 
 
 
@@ -366,7 +370,7 @@ class User(Wallet):
 
     def pay(self,shopName,role,itemList,username,permission,overspend):
         count = self.countData.get(username)
-        if role == 'Child' and count > 0:
+        if role == 'Child' and count > 0 and permission == "Restricted":
             print("You cannot make more than 1 transaction per day")
             temp = input('Do you want to request Dad or Mom for more transactions? Yes / No')
             if temp == 'Yes':
@@ -374,7 +378,7 @@ class User(Wallet):
                 print("Request Sent")
             else:
                 pass
-        elif (role == 'Child' and count == 0) or (role == 'Father' or role == 'Mother'):
+        elif (role == 'Child' and count == 0) or (role == 'Father' or role == 'Mother') or (role == 'Child' and permission == "Granted"):
             for i in itemList:
                 self.temp_itemName.append(i[0])
                 self.temp_itemPrice.append(i[1])
@@ -422,23 +426,26 @@ class User(Wallet):
                 temp = input("Do you want to respond to the notification? Yes / No")
                 if(temp == 'Yes') and (i[0] == "I want to make more transactions"):
                     userIndex = list(self.userData.keys()).index(i[1])
-                    self.permission_list[userIndex] = "Granted"
+                    self.permission_list[0][userIndex] = "Granted"
                     self.dad_notification_List.remove(i)
+                    self.mom_notification_List.remove(i)
                 elif(temp == 'Yes') and (i[0] == "Wallet Balance is 0"):
                     accno = int(input("Enter Account Number"))
                     amount = int(input("Enter Amount"))
                     self.addMoneyToWallet(accno,amount,role)
                     self.dad_notification_List.remove(i)
+                    self.mom_notification_List.remove(i)
                 elif(temp == 'Yes') and (i[0] == "Wallet Balance is less than $ 100"):
                     accno = int(input("Enter Account Number"))
                     amount = int(input("Enter Amount"))
                     self.addMoneyToWallet(accno, amount, role)
                     self.dad_notification_List.remove(i)
+                    self.mom_notification_List.remove(i)
                 elif(temp == 'Yes') and (i[0] == "I want to spend more than 50 dollars"):
                     decision = input("Do you want to take this request or transfer it ? Take / Leave")
                     if decision == 'Take':
                         userIndex = list(self.userData.keys()).index(i[1])
-                        self.overspend_list[userIndex] = "Allow"
+                        self.overspend_list[0][userIndex] = "Allow"
                         self.dad_notification_List.remove(i)
                     if decision == 'Leave':
                         pass
@@ -453,27 +460,32 @@ class User(Wallet):
                 temp = input("Do you want to respond to the notification? Yes / No")
                 if (temp == 'Yes') and (i[0] == "I want to make more transactions"):
                     userIndex = list(self.userData.keys()).index(i[1])
-                    self.permission_list[userIndex] = "Granted"
+                    self.permission_list[0][userIndex] = "Granted"
                     self.mom_notification_List.remove(i)
+                    self.dad_notification_List.remove(i)
                 elif (temp == 'Yes') and (i[0] == "Wallet Balance is 0"):
                     accno = int(input("Enter Account Number"))
                     amount = int(input("Enter Amount"))
                     self.addMoneyToWallet(accno, amount, role)
                     self.mom_notification_List.remove(i)
+                    self.dad_notification_List.remove(i)
                 elif (temp == 'Yes') and (i[0] == "Wallet Balance is less than $ 100"):
                     accno = int(input("Enter Account Number"))
                     amount = int(input("Enter Amount"))
                     self.addMoneyToWallet(accno, amount, role)
                     self.mom_notification_List.remove(i)
+                    self.dad_notification_List.remove(i)
                 elif (temp == 'Yes') and (i[0] == "I want to spend more than 50 dollars"):
                     decision = input("Do you want to take this request or transfer it ? Take / Transfer" )
                     if decision == 'Take':
                         userIndex = list(self.userData.keys()).index(i[1])
-                        self.overspend_list[userIndex] = "Allow"
+                        self.overspend_list[0][userIndex] = "Allow"
                         self.mom_notification_List.remove(i)
+                        self.dad_notification_List.remove(i)
                     if decision == 'Transfer':
                         userIndex = list(self.userData.keys()).index(i[1])
                         self.dad_notification_List.append(["I want to spend more than 50 dollars",i[1]])
+                        self.mom_notification_List.remove(i)
                 else:
                     continue
 
@@ -576,109 +588,109 @@ role = user.userData.get(username)
 userIndex = list(user.userData.keys()).index(username)
 if username in user.blocked_list:
     print("Blocked")
-permission = user.permission_list[0][userIndex]
-overspend = user.overspend_list[0][userIndex]
-print("WHAT DO YOU WANT TO ACCESS?".center(columns))
-print("1.Bank".center(columns))
-print("2.Wallet".center(columns))
-choice = int(input())
-if choice == 1:
-    while True:
-        print("******************** WELCOME TO THE BANK ********************".center(columns))
-        print("Account List:", user.acc_List)
-        print("********** HOW CAN WE HELP YOU ? **********".center(columns))
-        print("1.Create Account".center(columns))
-        print("2.Show Account Details".center(columns))
-        print("3.Delete Account".center(columns))
-        print("4.Modify Account Name".center(columns))
-        print("5.Exit Bank".center(columns))
-        choice = int(input())
-        if choice == 1:
-            print("********** CREATING AN ACCOUNT **********".center(columns))
-            user.createAccount(role)
-        elif choice == 2:
-            print("********** SHOW ACCOUNT DETAILS **********".center(columns))
-            accountNumber = int(input("Enter Account Number".center(columns)))
-            user.showAccount(accountNumber,role)
-        elif choice == 3:
-            print("********** DELETE ACCOUNT **********".center(columns))
-            accountNumber = int(input("Enter Account Number".center(columns)))
-            user.deleteAccount(accountNumber,role)
-        elif choice == 4:
-            print("********** MODIFY ACCOUNT **********".center(columns))
-            accountNumber = int(input("Enter Account Number".center(columns)))
-            user.modifyAccount(accountNumber,role)
-        elif choice == 5:
-            break
-        else:
-            print("********** INVALID CHOICE **********".center(columns))
-elif choice == 2:
-    while True:
-        print("******************** WELCOME TO THE BANK ********************".center(columns))
-        print("Wallet Account List : ", user.wallet_acc_list)
-        print("\n")
-        print("-----------------------------------------------------------------------".center(columns))
-        print("WALLET BALANCE : ".center(columns),user.wallet_balance)
-        print("-----------------------------------------------------------------------".center(columns))
-        print("\n")
-        print("********** HOW CAN WE HELP YOU ? **********".center(columns))
-        print("1.Add Account to Wallet".center(columns))
-        print("2.Remove Account to Wallet".center(columns))
-        print("3.Add Money From Wallet".center(columns))
-        print("4.Send Money From Wallet to Bank".center(columns))
-        print("5.Pay".center(columns))
-        print("6.View Transactions".center(columns))
-        print("7.Block User".center(columns))
-        print("8.Unblock User".center(columns))
-        print("9.View Notifications".center(columns))
-        print("10.Exit".center(columns))
-        choice = int(input())
-        if choice == 1:
-            print("********** ADDING ACCOUNT TO WALLET **********".center(columns))
-            accountNumber = int(input("Enter Account Number".center(columns)))
-            user.addAccount(accountNumber,role)
-        elif choice == 2:
-            print("********** REMOVING ACCOUNT FROM WALLET **********".center(columns))
-            accountNumber = int(input("Enter Account Number".center(columns)))
-            user.removeAccount(accountNumber,role)
-        elif choice == 3:
-            print("********** ADDING MONEY TO WALLET **********".center(columns))
-            accountNumber = int(input("Enter Account Number".center(columns)))
-            amount = int(input("Enter Amount".center(columns)))
-            user.addMoneyToWallet(accountNumber,amount,role)
-        elif choice == 4:
-            print("********** SENDING MONEY FROM WALLET TO BANK **********".center(columns))
-            accountNumber = int(input("Enter Account Number".center(columns)))
-            amount = int(input("Enter Amount".center(columns)))
-            user.withdrawMoneyFromWallet(accountNumber,amount,role,username)
-        elif choice == 5:
-            print("********** PAY TO BUSINESS **********".center(columns))
-            ShopName = input("Enter Shop Name".center(columns))
-            itemCount = int(input("Enter Number of Items".center(columns)))
-            tempItemList = []
-            for i in range(0,itemCount):
-                name = input("Enter Item Name".center(columns))
-                price = int(input("Enter Item Price".center(columns)))
-                tempItemList.append([name,price])
-            user.pay(ShopName,role,tempItemList,username,permission,overspend)
-        elif choice == 6:
-            print("********** VIEWING TRANSACTIONS **********".center(columns))
-            user.viewTransaction(role)
-        elif choice == 7:
-            print("********** BLOCK USER **********".center(columns))
-            user.blockUser(role)
-        elif choice == 8:
-            print("********** UNBLOCK USER **********".center(columns))
-            user.unblockUser(role)
-        elif choice == 9:
-            print("********** NOTIFICATIONS **********".center(columns))
-            user.viewNotifications(role)
-        elif choice == 10:
-            break
-        else:
-            print("********** INVALID CHOICE **********".center(columns))
-user.endOfTheDay()
-user.endOfTheDayUpdations()
-user.Bank_storeList()
-user.Wallet_storeList()
+else:
+    permission = user.permission_list[0][userIndex]
+    overspend = user.overspend_list[0][userIndex]
+    print("WHAT DO YOU WANT TO ACCESS?".center(columns))
+    print("1.Bank".center(columns))
+    print("2.Wallet".center(columns))
+    choice = int(input())
+    if choice == 1:
+        while True:
+            print("******************** WELCOME TO THE WALLET ********************".center(columns))
+            print("Account List:", user.acc_List)
+            print("********** HOW CAN WE HELP YOU ? **********".center(columns))
+            print("1.Create Account".center(columns))
+            print("2.Show Account Details".center(columns))
+            print("3.Delete Account".center(columns))
+            print("4.Modify Account Name".center(columns))
+            print("5.Exit Bank".center(columns))
+            choice = int(input())
+            if choice == 1:
+                print("********** CREATING AN ACCOUNT **********".center(columns))
+                user.createAccount(role)
+            elif choice == 2:
+                print("********** SHOW ACCOUNT DETAILS **********".center(columns))
+                accountNumber = int(input("Enter Account Number".center(columns)))
+                user.showAccount(accountNumber,role)
+            elif choice == 3:
+                print("********** DELETE ACCOUNT **********".center(columns))
+                accountNumber = int(input("Enter Account Number".center(columns)))
+                user.deleteAccount(accountNumber,role)
+            elif choice == 4:
+                print("********** MODIFY ACCOUNT **********".center(columns))
+                accountNumber = int(input("Enter Account Number".center(columns)))
+                user.modifyAccount(accountNumber,role)
+            elif choice == 5:
+                break
+            else:
+                print("********** INVALID CHOICE **********".center(columns))
+    elif choice == 2:
+        while True:
+            print("******************** WELCOME TO THE BANK ********************".center(columns))
+            print("Wallet Account List : ", user.wallet_acc_list)
+            print("\n")
+            print("-----------------------------------------------------------------------".center(columns))
+            print("WALLET BALANCE : ".center(columns),user.wallet_balance)
+            print("-----------------------------------------------------------------------".center(columns))
+            print("\n")
+            print("********** HOW CAN WE HELP YOU ? **********".center(columns))
+            print("1.Add Account to Wallet".center(columns))
+            print("2.Remove Account to Wallet".center(columns))
+            print("3.Add Money To Wallet".center(columns))
+            print("4.Send Money From Wallet to Bank".center(columns))
+            print("5.Pay".center(columns))
+            print("6.View Transactions".center(columns))
+            print("7.Block User".center(columns))
+            print("8.Unblock User".center(columns))
+            print("9.View Notifications".center(columns))
+            print("10.Exit".center(columns))
+            choice = int(input())
+            if choice == 1:
+                print("********** ADDING ACCOUNT TO WALLET **********".center(columns))
+                accountNumber = int(input("Enter Account Number".center(columns)))
+                user.addAccount(accountNumber,role)
+            elif choice == 2:
+                print("********** REMOVING ACCOUNT FROM WALLET **********".center(columns))
+                accountNumber = int(input("Enter Account Number".center(columns)))
+                user.removeAccount(accountNumber,role)
+            elif choice == 3:
+                print("********** ADDING MONEY TO WALLET **********".center(columns))
+                accountNumber = int(input("Enter Account Number".center(columns)))
+                amount = int(input("Enter Amount".center(columns)))
+                user.addMoneyToWallet(accountNumber,amount,role)
+            elif choice == 4:
+                print("********** SENDING MONEY FROM WALLET TO BANK **********".center(columns))
+                accountNumber = int(input("Enter Account Number".center(columns)))
+                amount = int(input("Enter Amount".center(columns)))
+                user.withdrawMoneyFromWallet(accountNumber,amount,role,username)
+            elif choice == 5:
+                print("********** PAY TO BUSINESS **********".center(columns))
+                ShopName = input("Enter Shop Name".center(columns))
+                itemCount = int(input("Enter Number of Items".center(columns)))
+                tempItemList = []
+                for i in range(0,itemCount):
+                    name = input("Enter Item Name".center(columns))
+                    price = int(input("Enter Item Price".center(columns)))
+                    tempItemList.append([name,price])
+                user.pay(ShopName,role,tempItemList,username,permission,overspend)
+            elif choice == 6:
+                print("********** VIEWING TRANSACTIONS **********".center(columns))
+                user.viewTransaction(role)
+            elif choice == 7:
+                print("********** BLOCK USER **********".center(columns))
+                user.blockUser(role)
+            elif choice == 8:
+                print("********** UNBLOCK USER **********".center(columns))
+                user.unblockUser(role)
+            elif choice == 9:
+                print("********** NOTIFICATIONS **********".center(columns))
+                user.viewNotifications(role)
+            elif choice == 10:
+                break
+            else:
+                print("********** INVALID CHOICE **********".center(columns))
+    user.endOfTheDay()
+    user.Bank_storeList()
+    user.Wallet_storeList()
 
